@@ -1,0 +1,20 @@
+# ROS 2 / colcon build artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Editor / OS
+.vscode/
+*.swp
+.DS_Store
+
+# SLAM-Karten sind groß und gruppenspezifisch – nur Beispiel behalten,
+# eigene Karten lokal lassen (bei Bedarf diese Zeile auskommentieren):
+# maps/*.pgm
+# maps/*.yaml
