@@ -29,19 +29,55 @@ Ihr arbeitet **ohne `sudo`** – alles passiert in eurem Home-Verzeichnis.
 
 ## 0.2 Roboter identifizieren
 
-Jeder TurtleBot im Labor hat eine **Nummer/Namespace** (z.B. `tb01`) und eine
-**IP-Adresse** im Labor-WLAN. Beides hängt am Roboter bzw. steht an der Station.
+Jeder TurtleBot im Labor ist **beschriftet**. Typischerweise findet ihr auf dem
+Aufkleber zwei Angaben, z.B.:
+
+```
+Domain ID: 10
+E4 5F 01 7D 3F 36
+```
+
+- **Domain ID** (`10`) → die `ROS_DOMAIN_ID`. Kommt direkt in die ROS-Konfiguration
+  (Abschnitt 0.4). PC und Roboter **müssen denselben Wert** haben.
+- Die **Hex-Folge** (`E4 5F 01 7D 3F 36`) ist die **MAC-Adresse** der WLAN-Karte
+  des Roboters. Sie kommt **nicht** in die ROS-Konfiguration – ihr braucht sie nur,
+  um die aktuelle **IP-Adresse** des Roboters zu ermitteln (Abschnitt 0.2.1).
 
 Tragt eure Werte hier ein (für euer Protokoll):
 
-| Feld | Wert |
-|------|------|
-| TurtleBot-Name / Namespace | `__________` |
-| IP-Adresse des Roboters (Raspberry Pi) | `__________` |
-| Discovery-Server-IP : Port | `__________ : 11811` |
+| Feld | Beispiel | Euer Wert |
+|------|----------|-----------|
+| Domain ID (`ROS_DOMAIN_ID`) | `10` | `__________` |
+| MAC-Adresse (vom Aufkleber) | `e4:5f:01:7d:3f:36` | `__________` |
+| IP-Adresse des Roboters (ermittelt) | `10.0.0.42` | `__________` |
+| Discovery-Server-IP : Port | `10.0.0.42 : 11811` | `__________ : 11811` |
+| TurtleBot-Name / Namespace | `tb01` | `__________` |
 
 > **Namespace:** Wenn euer Roboter einen Namespace hat (z.B. `/tb01`), heißen die
 > Topics `/tb01/cmd_vel` statt `/cmd_vel`. Prüft das immer mit `ros2 topic list`.
+
+### 0.2.1 IP-Adresse aus der MAC ermitteln
+
+ROS kennt keine MAC-Adressen – ihr braucht die **IP** des Roboters für SSH und für
+den Discovery Server. So findet ihr sie im Labor-WLAN (MAC klein, mit Doppelpunkten:
+`e4:5f:01:7d:3f:36`):
+
+```bash
+# Variante A: Netz anpingen, dann Nachbar-Tabelle durchsuchen
+ping -c1 -b 10.0.0.255 2>/dev/null          # Broadcast eures Subnetzes (ggf. anpassen)
+ip neigh | grep -i "e4:5f:01:7d:3f:36"
+# → z.B.:  10.0.0.42 dev wlan0 lladdr e4:5f:01:7d:3f:36 REACHABLE
+
+# Variante B: Subnetz scannen
+sudo nmap -sn 10.0.0.0/24
+arp -a | grep -i "e4:5f:01"
+```
+
+Alternativ: IP in der **DHCP-Tabelle des Labor-Routers** nachschlagen (MAC → IP) oder,
+falls konfiguriert, per Hostname `ping <name>.local`. Was bei euch gilt, sagt die Betreuung.
+
+> 💡 **Tipp für die Betreuung:** Eine **feste DHCP-Reservierung** auf die MAC vergeben,
+> dann hat der Roboter immer dieselbe IP und die Studierenden müssen nicht jedes Mal suchen.
 
 ---
 
@@ -70,19 +106,23 @@ exit                  # SSH-Sitzung verlassen
 Damit euer PC die Topics des Roboters sieht, müssen drei Dinge stimmen:
 
 1. **gleiche DDS-Implementierung** (`rmw_fastrtps_cpp`),
-2. **Adresse des Discovery Servers** (`ROS_DISCOVERY_SERVER`),
-3. **gleiche `ROS_DOMAIN_ID`** wie der Roboter (im Labor meist `0`).
+2. **Adresse des Discovery Servers** (`ROS_DISCOVERY_SERVER`) – die IP aus 0.2.1,
+3. **gleiche `ROS_DOMAIN_ID`** wie der Roboter – **der Wert vom Aufkleber** (z.B. `10`).
 
-Tragt das ans Ende eurer `~/.bashrc` ein (einmalig, dann `source ~/.bashrc`):
+Tragt das ans Ende eurer `~/.bashrc` ein (einmalig, dann `source ~/.bashrc`).
+Ersetzt `10` und die IP durch **eure** Werte aus der Tabelle in 0.2:
 
 ```bash
 # --- ROS 2 Praktikum: Verbindung zum TurtleBot 4 ---
 source /opt/ros/jazzy/setup.bash
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-export ROS_DOMAIN_ID=0
-export ROS_DISCOVERY_SERVER="<ROBOTER-IP>:11811"
+export ROS_DOMAIN_ID=10                          # = "Domain ID" vom Aufkleber
+export ROS_DISCOVERY_SERVER="10.0.0.42:11811"    # = ermittelte Roboter-IP : 11811
 # ---------------------------------------------------
 ```
+
+> ⚠️ **Häufigster Fehler:** Domain-ID stimmt nicht mit dem Aufkleber überein →
+> `ros2 topic list` bleibt leer. Prüfen mit `echo $ROS_DOMAIN_ID`.
 
 > Manche Labore nutzen statt des Discovery Servers **Simple Discovery** (reines
 > Multicast im WLAN). Dann entfällt `ROS_DISCOVERY_SERVER`, und es genügen
@@ -154,10 +194,11 @@ Empfohlene Erweiterungen: **Python**, **ROS** (`ms-iot.vscode-ros`), **XML**.
 ## 0.7 Checkliste vor Versuch 1
 
 - [ ] PC und Roboter im selben Labor-WLAN
+- [ ] Domain-ID, MAC und ermittelte IP in der Tabelle (0.2) notiert
+- [ ] `echo $ROS_DOMAIN_ID` zeigt den Wert vom Aufkleber (z.B. `10`)
 - [ ] `ros2 topic list` zeigt die Topics des Roboters
 - [ ] `colcon build` läuft fehlerfrei
 - [ ] `ros2 run praktikum_py hello_node` gibt Ticks aus
-- [ ] Roboter-Name, IP und Namespace in der Tabelle (0.2) notiert
 
 Probleme? → [troubleshooting.md](troubleshooting.md)
 

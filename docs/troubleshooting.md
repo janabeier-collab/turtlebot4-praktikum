@@ -7,18 +7,26 @@ Häufige Probleme im Praktikum und ihre Lösungen. Wenn nichts hilft: Betreuung 
 ## `ros2 topic list` zeigt keine / kaum Topics des Roboters
 
 1. **Gleiches WLAN?** PC und Roboter müssen im selben Labor-WLAN sein.
-2. **Umgebung richtig gesetzt?**
+2. **Domain-ID stimmt mit dem Aufkleber überein?** (häufigster Fehler!)
    ```bash
-   echo $ROS_DOMAIN_ID          # muss zum Roboter passen (meist 0)
+   echo $ROS_DOMAIN_ID          # muss EXAKT der "Domain ID" vom Roboter-Aufkleber entsprechen (z.B. 10)
+   ```
+3. **Umgebung richtig gesetzt?**
+   ```bash
    echo $RMW_IMPLEMENTATION     # rmw_fastrtps_cpp
    echo $ROS_DISCOVERY_SERVER   # <ROBOTER-IP>:11811 (falls Discovery Server genutzt)
    ```
-3. **DDS-Cache zurücksetzen:**
+4. **DDS-Cache zurücksetzen:**
    ```bash
    ros2 daemon stop && ros2 daemon start
    ```
-4. **Erreichbarkeit prüfen:** `ping <ROBOTER-IP>`
-5. Roboter eingeschaltet und gebootet? (Akku/Display prüfen, ggf. per SSH `ros2 topic list` auf dem Roboter.)
+5. **Erreichbarkeit prüfen:** `ping <ROBOTER-IP>`
+6. **IP unbekannt / geändert?** IP aus der MAC-Adresse neu ermitteln (siehe
+   [00_setup.md](00_setup.md#021-ip-adresse-aus-der-mac-ermitteln)):
+   ```bash
+   ip neigh | grep -i "<MAC-mit-doppelpunkten>"
+   ```
+7. Roboter eingeschaltet und gebootet? (Akku/Display prüfen, ggf. per SSH `ros2 topic list` auf dem Roboter.)
 
 ## `command not found: ros2`
 

@@ -8,6 +8,16 @@ Schnellreferenz für das Praktikum. In jedem neuen Terminal zuerst: **`src_ws`**
 
 ---
 
+## Verbindung zum Roboter (vom Aufkleber)
+
+```bash
+export ROS_DOMAIN_ID=10                       # "Domain ID" vom Roboter-Aufkleber
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export ROS_DISCOVERY_SERVER="<ROBOTER-IP>:11811"
+# IP aus MAC-Adresse ermitteln:
+ip neigh | grep -i "e4:5f:01:7d:3f:36"        # → zeigt die IP des Roboters
+```
+
 ## Umgebung & Workspace
 
 ```bash
