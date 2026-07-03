@@ -74,9 +74,4 @@ turtlebot4-praktikum/
 - **Sicherheit zuerst.** Vor jedem Fahrversuch: freie Fläche, Not-Aus (Roboter
   hochheben) bereithalten, niemand steht im Fahrweg.
 
----
 
-## Abgabe
-
-Pro Gruppe ein **Fork dieses Repos** mit ausgefüllten TODO-Stellen und einem kurzen
-Protokoll je Versuch (`docs/protokoll_gruppeXX.md`). Details gibt die Betreuung bekannt.
