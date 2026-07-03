@@ -1,0 +1,13 @@
+# Beispiel-Parameter für das Praktikum.
+# Werden vom Bringup-Launch (launch/bringup.launch.py) geladen.
+# Ihr könnt Werte hier ändern, ohne den Code anzufassen.
+
+square_driver:
+  ros__parameters:
+    side_length: 0.5      # Seitenlänge des Quadrats in Metern
+    linear_speed: 0.15    # Vorwärtsgeschwindigkeit in m/s
+    angular_speed: 0.5    # Drehgeschwindigkeit in rad/s
+
+hello_node:
+  ros__parameters:
+    name: "Mobile-Systeme"
