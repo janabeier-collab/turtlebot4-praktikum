@@ -27,43 +27,107 @@ Ihr arbeitet **ohne `sudo`** – alles passiert in eurem Home-Verzeichnis.
 
 ---
 
-## 0.4 Discovery Server auf dem PC konfigurieren
+## 0.2 Verbindung herstellen (Rechner ist vorkonfiguriert)
 
-Damit euer PC die Topics des Roboters sieht, müssen drei Dinge stimmen:
+> **Wichtig:** Die Laborrechner sind **bereits fertig eingerichtet**. Die richtige
+> Domain-ID und die Discovery-Server-Adresse **eures** Roboters stehen schon in der
+> `~/.bashrc`. Ihr müsst **nichts** von Hand eintragen.
 
-1. **gleiche DDS-Implementierung** (`rmw_fastrtps_cpp`),
-2. **Adresse des Discovery Servers** (`ROS_DISCOVERY_SERVER`) – die IP aus 0.2.1,
-3. **gleiche `ROS_DOMAIN_ID`** wie der Roboter – **der Wert vom Aufkleber** (z.B. `10`).
-
-Tragt das ans Ende eurer `~/.bashrc` ein (einmalig, dann `source ~/.bashrc`).
-Ersetzt `10` und die IP durch **eure** Werte aus der Tabelle in 0.2:
+Verbindung herstellen und prüfen:
 
 ```bash
-# --- ROS 2 Praktikum: Verbindung zum TurtleBot 4 ---
-source /opt/ros/jazzy/setup.bash
-export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-export ROS_DOMAIN_ID=10                          # = "Domain ID" vom Aufkleber
-export ROS_DISCOVERY_SERVER="10.0.0.42:11811"    # = ermittelte Roboter-IP : 11811
-# ---------------------------------------------------
-```
-
-> ⚠️ **Häufigster Fehler:** Domain-ID stimmt nicht mit dem Aufkleber überein →
-> `ros2 topic list` bleibt leer. Prüfen mit `echo $ROS_DOMAIN_ID`.
-
-> Manche Labore nutzen statt des Discovery Servers **Simple Discovery** (reines
-> Multicast im WLAN). Dann entfällt `ROS_DISCOVERY_SERVER`, und es genügen
-> `RMW_IMPLEMENTATION` + identische `ROS_DOMAIN_ID`. Was bei euch gilt, sagt die Betreuung.
-
-Verbindung testen:
-
-```bash
-source ~/.bashrc
-ros2 daemon stop && ros2 daemon start   # Cache zurücksetzen
-ros2 topic list                         # Topics des Roboters müssen erscheinen
-ros2 topic echo /battery_state          # (ggf. mit Namespace) → Live-Daten
+source ~/.bashrc        # lädt die vorkonfigurierte Roboter-Verbindung
+ros2 topic list         # sollte die Topics des Roboters zeigen
 ```
 
 Seht ihr Topics wie `/battery_state`, `/scan`, `/odom`, `/cmd_vel`? **Dann steht die Verbindung.**
+
+> In frisch geöffneten Terminals wird `~/.bashrc` meist automatisch geladen –
+> das `source` ist nur nötig, wenn ihr es explizit neu laden wollt.
+
+<details>
+<summary><b>Was in der vorkonfigurierten <code>~/.bashrc</code> steht (nur zur Info)</b></summary>
+
+Ihr braucht das nicht anzufassen – zum Verständnis, was die Verbindung ausmacht:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export ROS_DOMAIN_ID=10                         # Domain-ID eures Roboters (Aufkleber)
+export ROS_DISCOVERY_SERVER="10.0.0.42:11811"   # IP eures Roboters : Port
+export ROS_SUPER_CLIENT=true                    # damit ALLE Topics sichtbar sind
+```
+
+Die **Domain-ID** trennt eure Roboter voneinander (jeder Roboter eine eigene) – so
+kommen sich die Teams im selben WLAN nicht in die Quere. Der **Discovery Server**
+zeigt auf genau euren Roboter. `ROS_SUPER_CLIENT` sorgt dafür, dass ihr den *ganzen*
+Topic-Graphen seht und nicht nur einen Teil.
+</details>
+
+### Topics fehlen oder Liste bleibt leer?
+
+```bash
+ros2 topic list      # ruhig ein zweites Mal aufrufen – der Daemon braucht kurz
+```
+
+Wenn dann immer noch etwas fehlt, der Reihe nach:
+
+1. **Roboter fertig gebootet?** Direkt nach dem Einschalten ist die Create-3-Basis
+   noch nicht bereit → `/odom`, `/cmd_vel`, `/imu` fehlen. Kurz warten, oder den
+   **Roboter aus- und wieder einschalten** und ~1–2 Min. hochfahren lassen.
+   *(Genau das war im Praktikum schon der Fix, wenn Topics fehlten.)*
+2. **Daemon zurücksetzen:** `ros2 daemon stop && ros2 daemon start`, dann erneut listen.
+3. **Umgebung geladen?** `source ~/.bashrc` in diesem Terminal, oder neues Terminal öffnen.
+4. **Roboter erreichbar?** `ping <ROBOTER-IP>`.
+
+Mehr dazu → [troubleshooting.md](troubleshooting.md).
+
+---
+
+## 0.3 Per SSH auf den Roboter (optional)
+
+Zum Programmieren bleibt ihr auf dem PC. Ihr schaltet euch nur per **SSH** auf den
+Roboter, wenn ihr etwas **prüfen oder konfigurieren** wollt:
+
+```bash
+ssh ubuntu@<ROBOTER-IP>       # Passwort erfragt ihr bei der Betreuung
+```
+
+Auf dem Roboter z.B.:
+
+```bash
+turtlebot4-setup      # interaktives Konfig-Menü (Netzwerk, Discovery Server, ...)
+ros2 topic list       # Topics direkt auf dem Roboter
+exit                  # SSH-Sitzung verlassen
+```
+
+> ⚠️ **Ändert auf dem Roboter nichts ohne Rücksprache.** Das Setup ist für alle
+> Gruppen gleich konfiguriert.
+
+---
+
+## 0.4 Roboter-Beschriftung verstehen (Referenz / Fehlersuche)
+
+> Nur zur Info – im Normalfall müsst ihr hier **nichts** tun, die Verbindung ist
+> ja bereits eingerichtet (0.2). Nützlich, falls doch mal die IP gesucht werden muss.
+
+Jeder TurtleBot ist beschriftet, z.B.:
+
+```
+Domain ID: 10
+E4 5F 01 7D 3F 36
+```
+
+- **Domain ID** (`10`) → die `ROS_DOMAIN_ID`. Trennt eure Roboter voneinander; steht
+  bereits in der `~/.bashrc`.
+- Die **Hex-Folge** ist die **MAC-Adresse** der WLAN-Karte. Kommt *nicht* in ROS –
+  sie dient nur dazu, die **IP** des Roboters zu finden, falls nötig:
+
+```bash
+ip neigh | grep -i "e4:5f:01:7d:3f:36"    # → zeigt die IP des Roboters
+```
+
+Alternativ: IP in der DHCP-Tabelle des Labor-Routers nachschlagen (MAC → IP).
 
 ---
 
@@ -119,10 +183,9 @@ Empfohlene Erweiterungen: **Python**, **ROS** (`ms-iot.vscode-ros`), **XML**.
 
 ## 0.7 Checkliste vor Versuch 1
 
-- [ ] PC und Roboter im selben Labor-WLAN
-- [ ] Domain-ID, MAC und ermittelte IP in der Tabelle (0.2) notiert
-- [ ] `echo $ROS_DOMAIN_ID` zeigt den Wert vom Aufkleber (z.B. `10`)
-- [ ] `ros2 topic list` zeigt die Topics des Roboters
+- [ ] Roboter eingeschaltet und ~1–2 Min. hochgefahren (Create-3-Basis bereit)
+- [ ] `source ~/.bashrc` ausgeführt
+- [ ] `ros2 topic list` zeigt die Topics des Roboters (`/scan`, `/odom`, `/cmd_vel`, …)
 - [ ] `colcon build` läuft fehlerfrei
 - [ ] `ros2 run praktikum_py hello_node` gibt Ticks aus
 
