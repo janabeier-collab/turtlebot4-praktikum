@@ -125,14 +125,6 @@ ros2 launch praktikum_py demo.launch.py name:=Mobile-Systeme
 **Aufgabe:** Erweitert das Launch-File so, dass es zusätzlich euren
 `battery_listener` startet. (Zweiten `Node(...)`-Eintrag ergänzen.)
 
----
-
-## 1.7 Abgabe Versuch 1
-
-- Ausgefüllte `square_driver.py` und `battery_listener.py` (TODOs gelöst).
-- Erweitertes `demo.launch.py`.
-- Protokoll mit Antworten auf Fragen 1–4 und kurzer Beschreibung eurer Lösung.
-
 Weiter mit → [Versuch 2: SLAM](02_slam.md)
 
 ---
