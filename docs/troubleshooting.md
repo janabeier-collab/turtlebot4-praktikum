@@ -48,10 +48,14 @@ Neues Terminal? → wieder `src_ws`.
 - Bei „setup.py / entry_point"-Fehlern: Tippfehler in `setup.py` prüfen.
 - Sauberer Neustart: `rm -rf build install log && colcon build --symlink-install`.
 
-## Roboter reagiert nicht auf `/cmd_vel`
+## Roboter reagiert nicht auf `/cmd_vel_unstamped`
 
-- **Namespace?** Vielleicht ist es `/tbXX/cmd_vel`. `ros2 topic list | grep cmd_vel`.
-- Sendet überhaupt jemand? `ros2 topic echo /cmd_vel` in zweitem Terminal.
+- **Richtiges Topic?** Fahrbefehle gehen an `/cmd_vel_unstamped` (Typ `Twist`), **nicht**
+  an `/cmd_vel` (das erwartet `TwistStamped`). Prüfen: `ros2 topic list | grep cmd_vel`.
+- **Namespace?** Vielleicht ist es `/tbXX/cmd_vel_unstamped`.
+- Sendet überhaupt jemand? `ros2 topic echo /cmd_vel_unstamped` in zweitem Terminal.
+- **teleop bewegt nichts?** teleop sendet auf `cmd_vel` – remappen:
+  `--ros-args -r cmd_vel:=/cmd_vel_unstamped`.
 - Create-3-Basis im Fehlerzustand? Kurz aus-/einschalten (mit Betreuung).
 - Sicherheitsstopp aktiv (Roboter angehoben/gekippt)? Wieder absetzen.
 

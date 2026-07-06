@@ -58,9 +58,11 @@ In RViz seht ihr, wie die Karte entsteht. Anzeigen prüfen: **Map**, **LaserScan
 
 ```bash
 src_ws
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
+# teleop sendet standardmäßig auf 'cmd_vel' – unser Roboter hört auf
+# 'cmd_vel_unstamped', daher umbiegen (remap):
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
 # Falls Namespace nötig:
-# ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/tb01/cmd_vel
+# ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/tb01/cmd_vel_unstamped
 ```
 
 Steuerung (Fenster muss im Fokus sein): Tasten `i/j/k/l/,` usw.

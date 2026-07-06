@@ -8,7 +8,9 @@ Hintergrund:
     Bewegung wird über geometry_msgs/Twist gesteuert:
         linear.x  = Vorwärtsgeschwindigkeit in m/s
         angular.z = Drehgeschwindigkeit in rad/s
-    Das richtige Topic ist beim TurtleBot 4 in der Regel '/cmd_vel'
+    Das Fahrbefehl-Topic ist bei UNSEREM TurtleBot 4 '/cmd_vel_unstamped'
+    (Typ geometry_msgs/Twist). Das ähnlich benannte '/cmd_vel' erwartet
+    TwistStamped und wird hier NICHT verwendet.
     (prüft es mit:  ros2 topic list | grep cmd_vel).
 
 Starten (NUR mit freier Fläche und Aufsicht!):
@@ -32,8 +34,8 @@ class SquareDriver(Node):
         self.declare_parameter('linear_speed', 0.15)    # m/s
         self.declare_parameter('angular_speed', 0.5)    # rad/s
 
-        # TODO 1: Publisher auf das Topic '/cmd_vel' (Typ: Twist, Queue-Size 10) anlegen.
-        #         Tipp:  self.pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        # TODO 1: Publisher auf das Topic '/cmd_vel_unstamped' (Typ: Twist, Queue-Size 10) anlegen.
+        #         Tipp:  self.pub = self.create_publisher(Twist, '/cmd_vel_unstamped', 10)
         self.pub = None  # <-- ersetzen
 
         # TODO 2: Timer mit z.B. 10 Hz (period=0.1) anlegen, der self.control_loop aufruft.

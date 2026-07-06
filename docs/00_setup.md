@@ -40,7 +40,7 @@ source ~/.bashrc        # lädt die vorkonfigurierte Roboter-Verbindung
 ros2 topic list         # sollte die Topics des Roboters zeigen
 ```
 
-Seht ihr Topics wie `/battery_state`, `/scan`, `/odom`, `/cmd_vel`? **Dann steht die Verbindung.**
+Seht ihr Topics wie `/battery_state`, `/scan`, `/odom`, `/cmd_vel_unstamped`? **Dann steht die Verbindung.**
 
 > In frisch geöffneten Terminals wird `~/.bashrc` meist automatisch geladen –
 > das `source` ist nur nötig, wenn ihr es explizit neu laden wollt.
@@ -73,7 +73,7 @@ ros2 topic list      # ruhig ein zweites Mal aufrufen – der Daemon braucht kur
 Wenn dann immer noch etwas fehlt, der Reihe nach:
 
 1. **Roboter fertig gebootet?** Direkt nach dem Einschalten ist die Create-3-Basis
-   noch nicht bereit → `/odom`, `/cmd_vel`, `/imu` fehlen. Kurz warten, oder den
+   noch nicht bereit → `/odom`, `/cmd_vel_unstamped`, `/imu` fehlen. Kurz warten, oder den
    **Roboter aus- und wieder einschalten** und ~1–2 Min. hochfahren lassen.
    *(Genau das war im Praktikum schon der Fix, wenn Topics fehlten.)*
 2. **Daemon zurücksetzen:** `ros2 daemon stop && ros2 daemon start`, dann erneut listen.
@@ -185,7 +185,7 @@ Empfohlene Erweiterungen: **Python**, **ROS** (`ms-iot.vscode-ros`), **XML**.
 
 - [ ] Roboter eingeschaltet und ~1–2 Min. hochgefahren (Create-3-Basis bereit)
 - [ ] `source ~/.bashrc` ausgeführt
-- [ ] `ros2 topic list` zeigt die Topics des Roboters (`/scan`, `/odom`, `/cmd_vel`, …)
+- [ ] `ros2 topic list` zeigt die Topics des Roboters (`/scan`, `/odom`, `/cmd_vel_unstamped`, …)
 - [ ] `colcon build` läuft fehlerfrei
 - [ ] `ros2 run praktikum_py hello_node` gibt Ticks aus
 

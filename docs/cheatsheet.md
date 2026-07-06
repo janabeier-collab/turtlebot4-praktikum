@@ -4,7 +4,7 @@ Schnellreferenz für das Praktikum. In jedem neuen Terminal zuerst: **`src_ws`**
 (= `source /opt/ros/jazzy/setup.bash && source ~/turtlebot4-praktikum/install/setup.bash`).
 
 > **Namespace beachten:** Hat euer Roboter einen (z.B. `tb01`), heißen Topics
-> `/tb01/cmd_vel` statt `/cmd_vel`. Immer `ros2 topic list` prüfen.
+> `/tb01/cmd_vel_unstamped` statt `/cmd_vel_unstamped`. Immer `ros2 topic list` prüfen.
 
 ---
 
@@ -42,7 +42,7 @@ ros2 interface show <typ>       rqt_graph
 ros2 run <pkg> <executable>
 ros2 run <pkg> <exe> --ros-args -p <name>:=<wert>     # Parameter setzen
 ros2 launch <pkg> <file.launch.py> <arg>:=<wert>
-ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.1}}"
+ros2 topic pub --once /cmd_vel_unstamped geometry_msgs/msg/Twist "{linear: {x: 0.1}}"
 ros2 param list | get <node> <param> | set <node> <param> <wert>
 ```
 
@@ -50,7 +50,8 @@ ros2 param list | get <node> <param> | set <node> <param> <wert>
 
 | Topic | Typ | Bedeutung |
 |-------|-----|-----------|
-| `/cmd_vel` | `geometry_msgs/Twist` | Fahrbefehl (linear.x, angular.z) |
+| `/cmd_vel_unstamped` | `geometry_msgs/Twist` | Fahrbefehl (linear.x, angular.z) — **dieses** Topic nutzen |
+| `/cmd_vel` | `geometry_msgs/TwistStamped` | erwartet Zeitstempel — hier **nicht** verwenden |
 | `/scan` | `sensor_msgs/LaserScan` | 2D-LiDAR |
 | `/odom` | `nav_msgs/Odometry` | Odometrie / geschätzte Pose |
 | `/battery_state` | `sensor_msgs/BatteryState` | Akkustand |

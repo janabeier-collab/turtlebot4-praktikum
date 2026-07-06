@@ -22,7 +22,7 @@ Nav2 ist der ROS-2-Navigations-Stack. Bei bekannter Karte:
 
 ```
 Karte (labor_map) ─┐
-/scan ─────────────┼──> Nav2 ──> /cmd_vel ──> Roboter fährt zum Ziel
+/scan ─────────────┼──> Nav2 ──> /cmd_vel_unstamped ──> Roboter fährt zum Ziel
 Zielpose ──────────┘
 ```
 

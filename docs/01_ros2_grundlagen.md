@@ -14,17 +14,22 @@ In jedem Terminal zuerst die Umgebung laden: `src_ws` (siehe Versuch 0).
 
 - **Node** – ein Programm/Baustein mit einer Aufgabe (z.B. „Akku überwachen").
 - **Topic** – benannter Datenstrom; **Publisher** senden, **Subscriber** empfangen
-  (asynchron, viele-zu-viele). Beispiel: `/cmd_vel`, `/scan`.
+  (asynchron, viele-zu-viele). Beispiel: `/cmd_vel_unstamped`, `/scan`.
 - **Message** – Datentyp eines Topics, z.B. `geometry_msgs/Twist`.
 - **Service** – synchroner Request/Response-Aufruf (einmalig, mit Antwort).
 - **Parameter** – konfigurierbare Werte eines Nodes zur Laufzeit.
 - **Launch-File** – startet mehrere Nodes mit Parametern auf einmal.
 
 ```
-   /battery_state          /cmd_vel
+   /battery_state       /cmd_vel_unstamped
 TurtleBot ──topic──> [euer Node] ──topic──> TurtleBot (Antrieb)
  (Publisher)          (Sub + Pub)            (Subscriber)
 ```
+
+> ⚠️ **Fahrbefehl-Topic:** Bei unserem TurtleBot 4 nimmt **`/cmd_vel_unstamped`**
+> (Typ `geometry_msgs/Twist`) die Geschwindigkeitsbefehle an. Das ähnlich benannte
+> `/cmd_vel` erwartet `TwistStamped` und wird hier **nicht** verwendet – nutzt für
+> alle Fahrbefehle immer **`/cmd_vel_unstamped`**.
 
 ---
 
@@ -35,14 +40,14 @@ Probiert der Reihe nach aus und notiert die Ausgaben:
 ```bash
 ros2 node list                     # welche Nodes laufen gerade?
 ros2 topic list                    # welche Topics gibt es?
-ros2 topic info /cmd_vel           # Typ + Anzahl Pub/Sub
+ros2 topic info /cmd_vel_unstamped # Typ + Anzahl Pub/Sub
 ros2 interface show geometry_msgs/msg/Twist   # Aufbau der Nachricht
 ros2 topic echo /battery_state     # Live-Daten anschauen (Strg+C beendet)
 ros2 topic hz /scan                # Publish-Rate des Laserscanners
 ```
 
-**Frage 1 (Protokoll):** Welchen Typ hat `/cmd_vel`, und welche Felder bestimmen
-Vorwärts- bzw. Drehbewegung?
+**Frage 1 (Protokoll):** Welchen Typ hat `/cmd_vel_unstamped`, und welche Felder
+bestimmen Vorwärts- bzw. Drehbewegung?
 
 ### Roboter manuell bewegen (zum Gefühl bekommen)
 
