@@ -48,14 +48,9 @@ Vorwärts- bzw. Drehbewegung?
 
 ```bash
 # Vorsicht: freie Fläche! Eine einzelne Twist-Nachricht senden:
-ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \
+ros2 topic pub --once /cmd_vel_unstamped geometry_msgs/msg/Twist \
   "{linear: {x: 0.1}, angular: {z: 0.0}}"
 ```
-
-> Falls euer Roboter einen Namespace hat (z.B. `tb01`), lautet das Topic
-> `/tb01/cmd_vel`. Immer vorher mit `ros2 topic list` prüfen!
-
----
 
 ## 1.3 Referenz-Node lesen: `hello_node`
 
@@ -78,7 +73,7 @@ Datei: `src/praktikum_py/praktikum_py/square_driver.py` – enthält **TODOs**.
 
 Ziel: Der Roboter fährt ein Quadrat mit einstellbarer Seitenlänge.
 
-1. **TODO 1:** Publisher auf `/cmd_vel` (Typ `Twist`) anlegen.
+1. **TODO 1:** Publisher auf `/cmd_vel_unstamped` (Typ `Twist`) anlegen.
 2. **TODO 2:** Timer (z.B. 10 Hz) einrichten.
 3. **TODO 3:** Zustandsautomat „geradeaus → 90° drehen", viermal, dann stoppen.
 
