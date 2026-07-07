@@ -66,7 +66,6 @@ ros2 launch turtlebot4_viz view_robot.launch.py
 **Frage 1 (Protokoll):** Was passiert, wenn ihr während der Fahrt ein Hindernis
 (z.B. einen Karton) in den Weg stellt? Beschreibt das Verhalten.
 
-> ⚠️ **Sicherheit:** Freie Fläche, Aufsicht, Not-Aus (anheben) bereit.
 
 ---
 
