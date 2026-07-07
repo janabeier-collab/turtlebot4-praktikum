@@ -14,7 +14,7 @@ Häufige Probleme im Praktikum und ihre Lösungen. Wenn nichts hilft: Betreuung 
 3. **Umgebung richtig gesetzt?**
    ```bash
    echo $RMW_IMPLEMENTATION     # rmw_fastrtps_cpp
-   echo $ROS_DISCOVERY_SERVER   # <ROBOTER-IP>:11811 (falls Discovery Server genutzt)
+   
    ```
 4. **DDS-Cache zurücksetzen:**
    ```bash
