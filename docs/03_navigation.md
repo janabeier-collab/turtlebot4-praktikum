@@ -105,16 +105,6 @@ Tipp: Schleife über mehrere `startToPose(...)`-Aufrufe.
 **Frage 2:** Wie reagiert die Wegplanung, wenn ein Ziel nicht erreichbar ist
 (z.B. hinter einer Wand)? Was liefert `getResult()`?
 
----
-
-## 3.5 Abgabe Versuch 3
-
-- Ausgefüllte `goto_goal.py` inkl. Mehrziel-Erweiterung.
-- Protokoll mit Antworten auf Fragen 1–2 und kurzer Beschreibung.
-- Optional: kurzes Video/GIF einer autonomen Fahrt.
-
----
-
 ### Wichtige Befehle
 
 ```bash
