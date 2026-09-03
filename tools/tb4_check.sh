@@ -53,7 +53,16 @@ fi
 [[ -n "${ROS_DOMAIN_ID:-}" ]]        && ok "ROS_DOMAIN_ID=$ROS_DOMAIN_ID"        || bad "ROS_DOMAIN_ID nicht gesetzt"
 [[ -n "${ROS_DISCOVERY_SERVER:-}" ]] && ok "ROS_DISCOVERY_SERVER=$ROS_DISCOVERY_SERVER" || warn "ROS_DISCOVERY_SERVER nicht gesetzt (nur ok, wenn ohne Discovery Server gearbeitet wird)"
 [[ "${RMW_IMPLEMENTATION:-}" == "rmw_fastrtps_cpp" ]] && ok "RMW_IMPLEMENTATION=rmw_fastrtps_cpp" || warn "RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-<leer>} (erwartet: rmw_fastrtps_cpp)"
-[[ "${ROS_SUPER_CLIENT:-}" == "true" ]] && ok "ROS_SUPER_CLIENT=true" || warn "ROS_SUPER_CLIENT nicht true – es sind dann evtl. nicht alle Topics sichtbar"
+case "$(printf '%s' "${ROS_SUPER_CLIENT:-}" | tr 'A-Z' 'a-z')" in
+  true|1) ok "ROS_SUPER_CLIENT=${ROS_SUPER_CLIENT}" ;;
+  *) warn "ROS_SUPER_CLIENT=${ROS_SUPER_CLIENT:-<leer>} – ohne Super Client ist der Topic-Graph unvollstaendig.
+           /etc/turtlebot4_discovery/setup.bash setzt den Wert nur in interaktiven Terminals
+           ([ -t 0 ]); in Skripten und 'ssh host befehl' steht er auf False. Fuer diesen Lauf:
+           export ROS_SUPER_CLIENT=True" ;;
+esac
+
+# Fuer die folgenden Abfragen selbst erzwingen, sonst ist der Topic-Graph unvollstaendig:
+export ROS_SUPER_CLIENT=True
 
 PKGS_OK=1
 for p in turtlebot4_navigation turtlebot4_viz turtlebot4_msgs nav2_bringup nav2_map_server slam_toolbox teleop_twist_keyboard irobot_create_msgs nav2_simple_commander; do
@@ -71,7 +80,9 @@ if command -v colcon >/dev/null 2>&1; then ok "colcon vorhanden"; else bad "colc
 # --------------------------------------------------------------- B) Netzwerk
 head1 "B) Netzwerk"
 
-ROBOT_IP="${ROS_DISCOVERY_SERVER%%:*}"
+# ROS_DISCOVERY_SERVER kann mehrere Server enthalten ("ip:port;ip:port") und mit
+# Semikolons beginnen, wenn Server-ID 0 uebersprungen wird -> erste IP herausziehen.
+ROBOT_IP="$(printf '%s' "${ROS_DISCOVERY_SERVER:-}" | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | head -1)"
 if [[ -n "$ROBOT_IP" ]]; then
   if ping -c 2 -W 2 "$ROBOT_IP" >/dev/null 2>&1; then
     ok "Roboter erreichbar: ping $ROBOT_IP"

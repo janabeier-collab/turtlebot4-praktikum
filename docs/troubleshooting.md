@@ -25,7 +25,41 @@ Häufige Probleme im Praktikum und ihre Lösungen. Wenn nichts hilft: Betreuung 
    ```bash
    ip neigh | grep -i "<MAC-mit-doppelpunkten>"
    ```
-7. Roboter eingeschaltet und gebootet? (Akku/Display prüfen, ggf. per SSH `ros2 topic list` auf dem Roboter.)
+7. **Roboterseite prüfen** – dabei unbedingt `ssh -t` benutzen, sonst fehlt dem
+   Roboter in der Sitzung selbst die Umgebung (siehe Super-Client-Abschnitt oben):
+
+   ```bash
+   ssh -t ubuntu@<ROBOTER-IP>
+   env | grep ROS && ros2 topic list
+   ```
+
+   Sieht der Roboter selbst nur `/parameter_events` und `/rosout`, läuft sein
+   ROS-Stack nicht:
+
+   ```bash
+   sudo systemctl status turtlebot4.service   # Neustart: turtlebot4-service-restart
+   sudo systemctl status discovery.service    # Discovery Server auf dem Roboter
+   ```
+
+## Topic-Liste unvollständig – Super Client fehlt
+
+Die Verbindungsdaten des Laborrechners stehen in `/etc/turtlebot4_discovery/setup.bash`
+(aus der `~/.bashrc` gesourct). Darin steht:
+
+```bash
+[ -t 0 ] && export ROS_SUPER_CLIENT=True || export ROS_SUPER_CLIENT=False
+```
+
+`[ -t 0 ]` prüft, ob die Shell ein Terminal ist. **Super Client gibt es also nur in
+interaktiven Terminals.** In Skripten, in `ssh rechner "befehl"` und in manchen
+VS-Code-Tasks steht der Wert auf `False` – und ohne Super Client seht ihr nur den
+Teil des Graphen, mit dem ihr selbst gematcht seid, statt aller Topics.
+
+```bash
+echo $ROS_SUPER_CLIENT        # muss True sein
+export ROS_SUPER_CLIENT=True  # für diese Shell nachziehen
+ros2 daemon stop && ros2 topic list
+```
 
 ## Nur ein Teil der Topics ist da (`/scan` ja, `/odom` und `/cmd_vel_unstamped` nein)
 
