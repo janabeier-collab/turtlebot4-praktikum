@@ -40,7 +40,8 @@ source ~/.bashrc        # lädt die vorkonfigurierte Roboter-Verbindung
 ros2 topic list         # sollte die Topics des Roboters zeigen
 ```
 
-Seht ihr Topics wie `/battery_state`, `/scan`, `/odom`, `/cmd_vel_unstamped`? **Dann steht die Verbindung.**
+Seht ihr Topics wie `/battery_state`, `/scan`, `/odom`, `/cmd_vel_unstamped` und
+`/dock_status`? **Dann steht die Verbindung.**
 
 > In frisch geöffneten Terminals wird `~/.bashrc` meist automatisch geladen –
 > das `source` ist nur nötig, wenn ihr es explizit neu laden wollt.
@@ -188,6 +189,8 @@ Empfohlene Erweiterungen: **Python**, **ROS** (`ms-iot.vscode-ros`), **XML**.
 - [ ] `ros2 topic list` zeigt die Topics des Roboters (`/scan`, `/odom`, `/cmd_vel_unstamped`, …)
 - [ ] `colcon build` läuft fehlerfrei
 - [ ] `ros2 run praktikum_py hello_node` gibt Ticks aus
+- [ ] Undocken funktioniert:
+      `ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"`
 
 Probleme? → [troubleshooting.md](troubleshooting.md)
 

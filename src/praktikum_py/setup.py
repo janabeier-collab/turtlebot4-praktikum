@@ -31,6 +31,7 @@ setup(
             'battery_listener = praktikum_py.battery_listener:main',
             # Versuch 3 – Navigation
             'goto_goal        = praktikum_py.goto_goal:main',
+            'patrol           = praktikum_py.patrol:main',
         ],
     },
 )

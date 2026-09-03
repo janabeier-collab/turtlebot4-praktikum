@@ -51,11 +51,64 @@ bestimmen Vorwärts- bzw. Drehbewegung?
 
 ### Roboter manuell bewegen (zum Gefühl bekommen)
 
+Das offizielle Handbuch kennt vier Wege, den TurtleBot 4 zu fahren – probiert
+sie alle einmal aus, ihr braucht sie später zur Fehlersuche.
+
+**a) Vom Dock runter (immer zuerst!)**
+
+Nach dem Einschalten steht der Roboter auf seiner Ladestation. Solange er
+dockt, fährt er nicht sinnvoll los:
+
 ```bash
-# Vorsicht: freie Fläche! Eine einzelne Twist-Nachricht senden:
-ros2 topic pub --once /cmd_vel_unstamped geometry_msgs/msg/Twist \
-  "{linear: {x: 0.1}, angular: {z: 0.0}}"
+ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"
 ```
+
+Zurück auf die Station:
+
+```bash
+ros2 action send_goal /dock irobot_create_msgs/action/Dock "{}"
+```
+
+Dockstatus (Feld `is_docked`) prüfen:
+
+```bash
+ros2 topic echo /dock_status --once
+```
+
+**b) Einzelne Fahrbefehle per Topic**
+
+```bash
+ros2 topic pub --once /cmd_vel_unstamped geometry_msgs/msg/Twist "{linear: {x: 0.1}, angular: {z: 0.0}}"
+```
+
+**c) Tastatur-Teleop** (dauerhaft steuern, Fenster muss im Fokus sein):
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
+```
+
+**d) Controller** – falls ein TurtleBot-4-Controller gekoppelt ist, läuft der
+Joy-Node schon auf dem Roboter (`turtlebot4_bringup joy_teleop.launch.py`).
+**L1 gedrückt halten** + linker Joystick = langsam fahren, **R1** = schnell.
+
+**e) Create-3-Actions** (präzise, geregelte Bewegung – nutzt die Odometrie des
+Roboters statt fester Zeiten):
+
+```bash
+ros2 action send_goal /drive_distance irobot_create_msgs/action/DriveDistance "{distance: 0.5, max_translation_speed: 0.15}"
+```
+
+```bash
+ros2 action send_goal /rotate_angle irobot_create_msgs/action/RotateAngle "{angle: 1.5708, max_rotation_speed: 0.5}"
+```
+
+**Frage 1b:** Vergleicht `/cmd_vel_unstamped` mit `DriveDistance`. Welcher Weg
+fährt 0,5 m genauer – und warum?
+
+> ⚠️ **Sicherheit:** freie Fläche, niemand im Fahrweg, Hand am „Not-Aus"
+> (Roboter anheben – der Sicherheitsstopp greift beim Anheben sofort).
+
+---
 
 ## 1.3 Referenz-Node lesen: `hello_node`
 

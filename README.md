@@ -22,6 +22,9 @@ mit ROS 2 zu programmieren und autonom fahren zu lassen:
 
 Hilfreich nebenbei: [Cheatsheet](docs/cheatsheet.md) · [Troubleshooting](docs/troubleshooting.md)
 
+Für die **Betreuung**: [Robotercheck & Abnahme](docs/betreuung/robotercheck.md) ·
+[Inventar](docs/betreuung/inventar.md) · [Protokollvorlage](docs/betreuung/protokoll_vorlage.md)
+
 ---
 
 ## Schnellstart (für ungeduldige)
@@ -54,7 +57,10 @@ ros2 topic list      # sollte Topics des TurtleBot zeigen (z.B. /battery_state)
 turtlebot4-praktikum/
 ├── README.md                 ← diese Datei
 ├── docs/                     ← alle Praktikumsanleitungen
+│   └── betreuung/            ← Abnahme & Inventar (nicht für Studierende)
 ├── maps/                     ← hier speichert ihr eure SLAM-Karten
+├── tools/
+│   └── tb4_check.sh          ← Schnelltest eines Roboters/Laborplatzes
 └── src/
     ├── praktikum_py/         ← euer Python-Paket (hier schreibt ihr Code, TODOs!)
     └── praktikum_bringup/    ← Launch-Files, die mehrere Nodes starten
@@ -73,5 +79,7 @@ turtlebot4-praktikum/
   (Roboter, Visualisierung, eigener Node). Nutzt `tmux` oder mehrere VS-Code-Terminals.
 - **Sicherheit zuerst.** Vor jedem Fahrversuch: freie Fläche, Not-Aus (Roboter
   hochheben) bereithalten, niemand steht im Fahrweg.
+- **Erst undocken, dann fahren.** Der Roboter startet auf seiner Ladestation:
+  `ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"`.
 
 

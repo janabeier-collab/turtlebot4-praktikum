@@ -13,8 +13,7 @@ Häufige Probleme im Praktikum und ihre Lösungen. Wenn nichts hilft: Betreuung 
    ```
 3. **Umgebung richtig gesetzt?**
    ```bash
-   echo $RMW_IMPLEMENTATION     # rmw_fastrtps_cpp
-   
+   env | grep ROS               # RMW_IMPLEMENTATION=rmw_fastrtps_cpp, ROS_DISCOVERY_SERVER, ROS_SUPER_CLIENT=true
    ```
 4. **DDS-Cache zurücksetzen:**
    ```bash
@@ -22,11 +21,18 @@ Häufige Probleme im Praktikum und ihre Lösungen. Wenn nichts hilft: Betreuung 
    ```
 5. **Erreichbarkeit prüfen:** `ping <ROBOTER-IP>`
 6. **IP unbekannt / geändert?** IP aus der MAC-Adresse neu ermitteln (siehe
-   [00_setup.md](00_setup.md#021-ip-adresse-aus-der-mac-ermitteln)):
+   [00_setup.md](00_setup.md)):
    ```bash
    ip neigh | grep -i "<MAC-mit-doppelpunkten>"
    ```
 7. Roboter eingeschaltet und gebootet? (Akku/Display prüfen, ggf. per SSH `ros2 topic list` auf dem Roboter.)
+
+## Nur ein Teil der Topics ist da (`/scan` ja, `/odom` und `/cmd_vel_unstamped` nein)
+
+Das ist der **Create-3-Basis-Fall**: der Raspberry Pi ist oben, die Fahrbasis noch
+nicht. Ein bis zwei Minuten warten, sonst Roboter aus- und wieder einschalten.
+Bleibt es dabei, im Create-3-Web-Interface (`http://<ROBOTER-IP>:8080`) prüfen,
+ob die Basis im Fehlerzustand ist (nur mit Betreuung).
 
 ## `command not found: ros2`
 
@@ -50,8 +56,11 @@ Neues Terminal? → wieder `src_ws`.
 
 ## Roboter reagiert nicht auf `/cmd_vel_unstamped`
 
-- **Richtiges Topic?** Fahrbefehle gehen an `/cmd_vel_unstamped` (Typ `Twist`), **nicht**
-  an `/cmd_vel` (das erwartet `TwistStamped`). Prüfen: `ros2 topic list | grep cmd_vel`.
+- **Steht er noch auf der Ladestation?** Erst undocken:
+  `ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"`
+- **Richtiges Topic?** Fahrbefehle aus eurem Code gehen an `/cmd_vel_unstamped`
+  (Typ `Twist`). `/cmd_vel` erwartet unter Jazzy `TwistStamped` und wird von
+  Nav2 benutzt. Prüfen: `ros2 topic list | grep cmd_vel`.
 - **Namespace?** Vielleicht ist es `/tbXX/cmd_vel_unstamped`.
 - Sendet überhaupt jemand? `ros2 topic echo /cmd_vel_unstamped` in zweitem Terminal.
 - **teleop bewegt nichts?** teleop sendet auf `cmd_vel` – remappen:
@@ -59,24 +68,67 @@ Neues Terminal? → wieder `src_ws`.
 - Create-3-Basis im Fehlerzustand? Kurz aus-/einschalten (mit Betreuung).
 - Sicherheitsstopp aktiv (Roboter angehoben/gekippt)? Wieder absetzen.
 
-## SLAM-Karte ist verschmiert / doppelte Wände
+## RViz zeigt keine Karte, obwohl SLAM läuft
 
-- Langsamer fahren, besonders bei Drehungen.
-- Eine Schleife schließen (zum Start zurück) für Loop Closure.
-- Prüfen, dass `/scan` mit stabiler Rate kommt: `ros2 topic hz /scan`.
+Fast immer die **falsche RViz-Konfiguration**: `view_robot.launch.py` enthält
+gar kein `Map`-Display und kein SLAM-Toolbox-Panel. Für Versuch 2 und 3 gilt:
+
+```bash
+ros2 launch turtlebot4_viz view_navigation.launch.py
+```
+
+Sonst: **Fixed Frame** auf `map` setzen, Displays (Map, LaserScan, RobotModel, TF)
+ergänzen, TF-Baum prüfen mit `ros2 run tf2_tools view_frames`.
+
+## Karte speichern: `map_saver_cli` hängt oder meldet „Failed to save the map"
+
+`/map` wird mit QoS *transient local* publiziert. Ohne den passenden Parameter
+bekommt der Saver nie eine Nachricht:
+
+```bash
+ros2 run nav2_map_server map_saver_cli -f labor_map --ros-args -p map_subscribe_transient_local:=true
+```
+
+Zuverlässiger ist der Service der SLAM Toolbox (speichert ins aktuelle Verzeichnis):
+
+```bash
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+```
+
+Bei Namespace zusätzlich `-r __ns:=/tbXX` bzw. `/tbXX/slam_toolbox/save_map`.
+
+## `nav_bringup.launch.py` nicht gefunden
+
+Dieses Launch-File gibt es in ROS 2 Jazzy **nicht mehr**. Navigation läuft jetzt
+in zwei Schritten:
+
+```bash
+ros2 launch turtlebot4_navigation localization.launch.py map:=$HOME/turtlebot4-praktikum/maps/labor_map.yaml
+```
+
+```bash
+ros2 launch turtlebot4_navigation nav2.launch.py
+```
 
 ## Nav2: Roboter fährt nicht los
 
-- **Startpose gesetzt?** In RViz „2D Pose Estimate" passend zur echten Position.
+- **Startpose gesetzt?** In RViz „2D Pose Estimate" passend zur echten Position –
+  ohne Anfangsschätzung bleibt AMCL inaktiv und Nav2 nimmt keine Ziele an.
 - Laserscan-Punkte liegen nicht auf den Wänden → Pose neu setzen.
-- Karte korrekt geladen? Pfad in `map:=...` prüfen (absoluter Pfad, `.yaml`).
-- Nav2 wirklich aktiv? Konsole von `nav_bringup` auf Fehler prüfen.
+- **Noch gedockt?** Undocken (siehe oben).
+- Karte korrekt geladen? Pfad in `map:=...` prüfen (**absoluter** Pfad, `.yaml`).
+- Nav2 wirklich aktiv? `ros2 topic echo /diagnostics_agg` bzw. Konsolenausgabe der
+  beiden Launch-Files auf Fehler prüfen.
+- `waitUntilNav2Active()` hängt ewig? Meist läuft Localization nicht (Terminal 1)
+  oder der Namespace passt nicht zusammen.
 
-## RViz zeigt nichts / „Global Status: Error"
+## Zwei Gruppen stören sich gegenseitig
 
-- **Fixed Frame** auf `map` (Nav) bzw. `odom` setzen.
-- Fehlende Displays (Map, LaserScan, RobotModel, TF) hinzufügen.
-- TF-Baum prüfen: `ros2 run tf2_tools view_frames`.
+Jeder Roboter hat eine **eigene Domain-ID** und einen eigenen Discovery Server.
+Wenn zwei Rechner dieselbe Domain-ID benutzen, sehen sie beide Roboter und die
+Fahrbefehle gehen an den falschen. `echo $ROS_DOMAIN_ID` auf beiden Rechnern
+vergleichen. Bei Robotern mit Namespace gehören `namespace:=/tbXX` an **alle**
+Launch-Files.
 
 ## VS Code Remote-SSH verbindet nicht
 
@@ -91,4 +143,5 @@ Neues Terminal? → wieder `src_ws`.
 2. Stimmt die Umgebung? (`env | grep ROS`)
 3. Ist das Paket gebaut & gesourct?
 4. Stimmt der Topic-Name (Namespace!)?
-5. Logs lesen – die erste Fehlermeldung zählt.
+5. Steht der Roboter noch auf der Dock?
+6. Logs lesen – die erste Fehlermeldung zählt.

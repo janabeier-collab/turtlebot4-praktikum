@@ -6,7 +6,7 @@
 >
 > **Voraussetzung:** [Versuch 1](01_ros2_grundlagen.md) abgeschlossen. Verbindung steht.
 
-In jedem Terminal: `src_ws`. Ihr braucht für diesen Versuch **3 Terminals**.
+In jedem Terminal: `src_ws`. Ihr braucht für diesen Versuch **3–4 Terminals**.
 
 ---
 
@@ -28,44 +28,76 @@ löst beides gleichzeitig:
 
 ---
 
-## 2.2 SLAM starten
+## 2.2 Zuerst: vom Dock runter (Undock)
+
+> ⚠️ **Das ist der Schritt, den fast alle vergessen.** Der TurtleBot steht nach
+> dem Einschalten auf seiner Ladestation. Solange er dockt, fährt er nicht
+> normal los, und die Karte beginnt mitten in der Dock-Struktur.
+
+```bash
+ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"
+```
+
+Docken könnt ihr am Ende genauso wieder:
+
+```bash
+ros2 action send_goal /dock irobot_create_msgs/action/Dock "{}"
+```
+
+Dockstatus prüfen (Feld `is_docked`):
+
+```bash
+ros2 topic echo /dock_status --once
+```
+
+> Mit Namespace: `/tb01/undock`, `/tb01/dock`, `/tb01/dock_status`.
+
+---
+
+## 2.3 SLAM starten
 
 **Terminal 1 – SLAM:**
 
 ```bash
-src_ws
 ros2 launch turtlebot4_navigation slam.launch.py
 ```
 
 > Falls euer Roboter einen Namespace hat:
 > `ros2 launch turtlebot4_navigation slam.launch.py namespace:=/tb01`
+>
+> `sync:=false` schaltet auf asynchrones SLAM um – nützlich, wenn der Rechner
+> nicht hinterherkommt und die Karte ruckelt.
 
 **Terminal 2 – Visualisierung (RViz):**
 
 ```bash
-src_ws
-ros2 launch turtlebot4_viz view_robot.launch.py
+ros2 launch turtlebot4_viz view_navigation.launch.py
 ```
+
+> **Nicht `view_robot.launch.py` nehmen!** Diese Konfiguration enthält kein
+> `Map`-Display und kein SLAM-Toolbox-Panel – ihr würdet die entstehende Karte
+> schlicht nicht sehen. `view_navigation` bringt Map, Costmaps, Nav2-Panel und
+> das SLAM-Toolbox-Panel mit.
 
 In RViz seht ihr, wie die Karte entsteht. Anzeigen prüfen: **Map**, **LaserScan**,
 **RobotModel**, **TF**. Fixed Frame muss `map` sein.
 
 ---
 
-## 2.3 Das Labor kartieren
+## 2.4 Das Labor kartieren
 
 **Terminal 3 – Teleop (Roboter manuell fahren):**
 
 ```bash
-src_ws
-# teleop sendet standardmäßig auf 'cmd_vel' – unser Roboter hört auf
-# 'cmd_vel_unstamped', daher umbiegen (remap):
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
-# Falls Namespace nötig:
-# ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/tb01/cmd_vel_unstamped
 ```
 
+> teleop sendet standardmäßig auf `cmd_vel` – unser Roboter hört auf
+> `cmd_vel_unstamped`, daher das Remapping.
+> Mit Namespace: `-r cmd_vel:=/tb01/cmd_vel_unstamped`.
+
 Steuerung (Fenster muss im Fokus sein): Tasten `i/j/k/l/,` usw.
+Alternativ mit dem **Controller** fahren (siehe [Versuch 1, 1.2](01_ros2_grundlagen.md)).
 
 **Vorgehen für eine gute Karte:**
 
@@ -79,30 +111,52 @@ Steuerung (Fenster muss im Fokus sein): Tasten `i/j/k/l/,` usw.
 
 ---
 
-## 2.4 Karte speichern
+## 2.5 Karte speichern
 
-Wenn die Karte vollständig ist, in einem **neuen Terminal**:
+Wenn die Karte vollständig ist, in einem **neuen Terminal**. Es gibt zwei Wege –
+**Weg A ist der aus dem offiziellen Handbuch und der zuverlässigere:**
+
+**Weg A – über den SLAM-Toolbox-Service** (speichert ins aktuelle Arbeitsverzeichnis):
 
 ```bash
-src_ws
-cd ~/turtlebot4-praktikum/maps
-ros2 run nav2_map_server map_saver_cli -f labor_map
+cd ~/turtlebot4-praktikum/maps && ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
 ```
 
-Das erzeugt zwei Dateien:
+**Weg B – über den map_saver:**
+
+```bash
+cd ~/turtlebot4-praktikum/maps && ros2 run nav2_map_server map_saver_cli -f labor_map --ros-args -p map_subscribe_transient_local:=true
+```
+
+> Der Parameter `map_subscribe_transient_local:=true` ist wichtig: `/map` wird
+> mit QoS *transient local* publiziert. Ohne ihn wartet `map_saver_cli` gern
+> ewig und meldet am Ende „Failed to save the map". Bei Namespace zusätzlich
+> `-r __ns:=/tb01` anhängen.
+
+Beide Wege erzeugen zwei Dateien:
 
 - `labor_map.pgm` – das Bild der Karte (Graustufen: frei / belegt / unbekannt)
 - `labor_map.yaml` – Metadaten (Auflösung, Ursprung, Schwellwerte)
 
-Diese braucht ihr in **Versuch 3** für die Navigation.
+Diese braucht ihr in **Versuch 3** für die Navigation. Kontrolle:
 
-> Alternativ kann die SLAM Toolbox eine *serialisierte* Karte speichern
-> (`Serialize Map` im SLAM-Toolbox-RViz-Panel) – für reines Nav2 reicht das
-> `.pgm/.yaml`-Paar aus `map_saver_cli`.
+```bash
+ls -l ~/turtlebot4-praktikum/maps/
+```
+
+> Im RViz-Panel der SLAM Toolbox gibt es zusätzlich `Serialize Map` – das
+> erzeugt ein `.posegraph`, mit dem SLAM später *weiterkartieren* kann. Für
+> reines Nav2 reicht das `.pgm`/`.yaml`-Paar.
+
+Zum Schluss den Roboter wieder auf die Ladestation schicken:
+
+```bash
+ros2 action send_goal /dock irobot_create_msgs/action/Dock "{}"
+```
 
 ---
 
-## 2.5 Aufgaben & Protokoll
+## 2.6 Aufgaben & Protokoll
 
 1. Kartiert das Labor (oder den zugewiesenen Bereich) und speichert `labor_map`.
 2. Fügt einen **Screenshot der RViz-Karte** ins Protokoll ein.
@@ -118,8 +172,10 @@ Weiter mit → [Versuch 3: Navigation](03_navigation.md)
 ### Wichtige Befehle
 
 ```bash
-ros2 launch turtlebot4_navigation slam.launch.py [namespace:=/tbXX]
-ros2 launch turtlebot4_viz view_robot.launch.py
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
-ros2 run nav2_map_server map_saver_cli -f <name>
+ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"
+ros2 launch turtlebot4_navigation slam.launch.py [namespace:=/tbXX] [sync:=false]
+ros2 launch turtlebot4_viz view_navigation.launch.py
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+ros2 action send_goal /dock irobot_create_msgs/action/Dock "{}"
 ```
