@@ -95,14 +95,6 @@ ros2 launch turtlebot4_viz view_navigation.launch.py
 > Und für Karten/Navigation immer `view_navigation.launch.py` statt
 > `view_robot.launch.py` – nur ersteres hat Map-, Costmap- und Nav2-Anzeigen.
 
-## SSH zum Roboter
-
-```bash
-ssh ubuntu@<ROBOTER-IP>
-turtlebot4-setup        # Konfig-Menü auf dem Roboter (nur mit Rücksprache ändern!)
-exit
-```
-
 ## Diagnose / Zustand des Roboters
 
 ```bash
