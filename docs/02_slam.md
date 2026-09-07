@@ -89,7 +89,7 @@ In RViz seht ihr, wie die Karte entsteht. Anzeigen prüfen: **Map**, **LaserScan
 **Terminal 3 – Teleop (Roboter manuell fahren):**
 
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/thlstudent/turtlebot4-praktikum/maps/labor_map'}"
 ```
 
 > teleop sendet standardmäßig auf `cmd_vel` – unser Roboter hört auf
