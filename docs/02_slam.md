@@ -89,7 +89,7 @@ In RViz seht ihr, wie die Karte entsteht. Anzeigen prüfen: **Map**, **LaserScan
 **Terminal 3 – Teleop (Roboter manuell fahren):**
 
 ```bash
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/thlstudent/turtlebot4-praktikum/maps/labor_map'}"
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
 ```
 
 > teleop sendet standardmäßig auf `cmd_vel` – unser Roboter hört auf
@@ -116,11 +116,17 @@ Alternativ mit dem **Controller** fahren (siehe [Versuch 1, 1.2](01_ros2_grundla
 Wenn die Karte vollständig ist, in einem **neuen Terminal**. Es gibt zwei Wege –
 **Weg A ist der aus dem offiziellen Handbuch und der zuverlässigere:**
 
-**Weg A – über den SLAM-Toolbox-Service** (speichert ins aktuelle Arbeitsverzeichnis):
+**Weg A – über den SLAM-Toolbox-Service** (Handbuchweg, im Labor bewährt):
 
 ```bash
-cd ~/turtlebot4-praktikum/maps && ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/<euer-benutzer>/turtlebot4-praktikum/maps/labor_map'}"
 ```
+
+> ⚠️ **Absoluten Pfad angeben.** Ein relativer Name landet im Arbeitsverzeichnis
+> des **slam_toolbox-Knotens**, nicht in dem eures Terminals – ein `cd` vorher
+> hilft also nicht, und die Karte taucht irgendwo anders auf. Auf den
+> Laborrechnern ist der Benutzer `thlstudent`, der Pfad also
+> `/home/thlstudent/turtlebot4-praktikum/maps/labor_map`.
 
 **Weg B – über den map_saver:**
 
@@ -176,6 +182,6 @@ ros2 action send_goal /undock irobot_create_msgs/action/Undock "{}"
 ros2 launch turtlebot4_navigation slam.launch.py [namespace:=/tbXX] [sync:=false]
 ros2 launch turtlebot4_viz view_navigation.launch.py
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel_unstamped
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/<benutzer>/turtlebot4-praktikum/maps/labor_map'}"
 ros2 action send_goal /dock irobot_create_msgs/action/Dock "{}"
 ```

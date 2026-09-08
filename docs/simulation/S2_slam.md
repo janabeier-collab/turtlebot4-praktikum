@@ -55,7 +55,7 @@ Vorgehen wie am echten Roboter:
 ## S2.3 Karte speichern
 
 ```bash
-cd ~/turtlebot4-praktikum/maps && ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'sim_maze_map'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '$HOME/turtlebot4-praktikum/maps/sim_maze_map'}"
 ```
 
 Kontrolle:
@@ -86,7 +86,7 @@ Fahrt dieselbe Runde **zweimal**: einmal betont langsam, einmal mit schnellen
 Drehungen. Speichert beide Karten unter verschiedenen Namen.
 
 ```bash
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'sim_maze_schnell'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '$HOME/turtlebot4-praktikum/maps/sim_maze_schnell'}"
 ```
 
 **Frage 3:** Legt beide `.pgm`-Dateien nebeneinander ins Protokoll. Wo genau

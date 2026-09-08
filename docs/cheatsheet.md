@@ -76,7 +76,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd
 ```bash
 ros2 launch turtlebot4_navigation slam.launch.py [namespace:=/tbXX] [sync:=false]
 ros2 launch turtlebot4_viz view_navigation.launch.py
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/<benutzer>/turtlebot4-praktikum/maps/labor_map'}"   # absoluter Pfad!
 # Alternative:
 ros2 run nav2_map_server map_saver_cli -f labor_map --ros-args -p map_subscribe_transient_local:=true
 ```

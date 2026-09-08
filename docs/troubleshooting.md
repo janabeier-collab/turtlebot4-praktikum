@@ -123,10 +123,12 @@ bekommt der Saver nie eine Nachricht:
 ros2 run nav2_map_server map_saver_cli -f labor_map --ros-args -p map_subscribe_transient_local:=true
 ```
 
-Zuverlässiger ist der Service der SLAM Toolbox (speichert ins aktuelle Verzeichnis):
+Zuverlässiger ist der Service der SLAM Toolbox – dabei einen **absoluten Pfad**
+angeben, sonst landet die Karte im Arbeitsverzeichnis des slam_toolbox-Knotens
+und nicht dort, wo ihr sie sucht:
 
 ```bash
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/thlstudent/turtlebot4-praktikum/maps/labor_map'}"
 ```
 
 Bei Namespace zusätzlich `-r __ns:=/tbXX` bzw. `/tbXX/slam_toolbox/save_map`.

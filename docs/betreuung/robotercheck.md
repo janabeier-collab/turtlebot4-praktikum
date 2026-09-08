@@ -120,7 +120,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd
 Einmal die Praktikumsfläche umrunden und die Schleife schließen, dann speichern:
 
 ```bash
-cd ~/turtlebot4-praktikum/maps && ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: 'labor_map'}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name: {data: '/home/thlstudent/turtlebot4-praktikum/maps/labor_map'}"
 ```
 
 - [ ] Wände sind einfach, nicht doppelt
