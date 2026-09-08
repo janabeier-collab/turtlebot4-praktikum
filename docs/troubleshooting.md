@@ -171,6 +171,72 @@ Launch-Files.
 
 ---
 
+# Simulation (Gazebo)
+
+Betrifft nur das [Simulationspraktikum](simulation/README.md).
+
+## Gazebo läuft, aber `ros2 topic list` zeigt nichts
+
+Die Laborrechner haben `ROS_DISCOVERY_SERVER` in der `~/.bashrc` stehen. Dann
+melden sich **auch die Simulationsknoten** bei diesem Discovery Server an — und
+finden sich untereinander nicht, wenn der echte Roboter aus ist.
+
+```bash
+source ~/turtlebot4-praktikum/tools/sim_env.sh
+```
+
+Das entfernt Discovery Server und Super Client und begrenzt die Erkennung auf
+den eigenen Rechner. In **jedem** Terminal der Simulationsversuche nötig.
+
+## `Package 'turtlebot4_gz_bringup' not found`
+
+```bash
+sudo apt update && sudo apt install ros-jazzy-turtlebot4-simulator ros-jazzy-irobot-create-nodes
+```
+
+## Nav2 in der Simulation fährt nicht los / TF-Fehler „extrapolation into the past"
+
+`use_sim_time` fehlt. Die Simulation hat ihre eigene Uhr (`/clock`), und jeder
+Knoten muss sie benutzen:
+
+```bash
+ros2 launch turtlebot4_navigation nav2.launch.py use_sim_time:=true
+```
+
+Auch bei `localization.launch.py`, `view_navigation.launch.py` und euren eigenen
+Nodes (`--ros-args -p use_sim_time:=true`). Umgekehrt gilt: auf der **echten**
+Hardware darf `use_sim_time` nicht `true` sein, sonst wartet der Knoten ewig auf
+eine `/clock`, die niemand veröffentlicht.
+
+## Nichts bewegt sich, keine Fehlermeldung
+
+Die Simulation ist pausiert. In Gazebo unten links auf Play. Bei pausierter
+Simulation läuft auch die ROS-Zeit nicht weiter.
+
+## Simulation ist zäh (niedriger Real Time Factor)
+
+- RViz schließen, wenn ihr es gerade nicht braucht.
+- Ohne `rviz:=true` starten und RViz nur bei Bedarf separat dazuholen.
+- `world:=maze` ist deutlich genügsamer als `warehouse`.
+- Auf schwachen Rechnern `model:=lite` (kein OAK-D-Kamerastream).
+
+## Zwei Plätze stören sich gegenseitig
+
+`tools/sim_env.sh` setzt `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`. Prüfen:
+
+```bash
+env | grep ROS_AUTOMATIC_DISCOVERY_RANGE
+```
+
+Fehlt der Wert, sehen sich die Simulationen der Nachbarplätze im WLAN.
+
+## Zweiter Roboter spawnt nicht (Versuch S4)
+
+Beide Roboter haben dieselbe Startpose oder denselben Namespace. Jeder braucht
+eigene `x`/`y` **und** einen eigenen `namespace`.
+
+---
+
 ### Allgemeine Diagnose-Reihenfolge
 
 1. Stimmt das Netzwerk? (`ping`, gleiches WLAN)

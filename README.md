@@ -22,6 +22,22 @@ mit ROS 2 zu programmieren und autonom fahren zu lassen:
 
 Hilfreich nebenbei: [Cheatsheet](docs/cheatsheet.md) · [Troubleshooting](docs/troubleshooting.md)
 
+### Ohne Roboter: das Simulationspraktikum
+
+Ein eigenständiger Zweig, der komplett in **Gazebo** läuft — zur Vorbereitung,
+als Ersatztermin oder zur Fehlersuche. Derselbe Code, kein Roboter nötig.
+
+| Versuch | Thema | Anleitung |
+|--------:|-------|-----------|
+| **S0** | Simulation installieren und starten | [docs/simulation/S0_setup.md](docs/simulation/S0_setup.md) |
+| **S1** | Fahren und ROS-2-Grundlagen | [docs/simulation/S1_fahren.md](docs/simulation/S1_fahren.md) |
+| **S2** | SLAM im Labyrinth | [docs/simulation/S2_slam.md](docs/simulation/S2_slam.md) |
+| **S3** | Navigation und Routen | [docs/simulation/S3_navigation.md](docs/simulation/S3_navigation.md) |
+| **S4** | Mehrere Roboter gleichzeitig | [docs/simulation/S4_mehrere_roboter.md](docs/simulation/S4_mehrere_roboter.md) |
+
+Übersicht und Vergleich: [docs/simulation/README.md](docs/simulation/README.md) ·
+[Simulation ↔ echter Roboter](docs/simulation/unterschiede.md)
+
 Für die **Betreuung**: [Robotercheck & Abnahme](docs/betreuung/robotercheck.md) ·
 [Inventar](docs/betreuung/inventar.md) · [Protokollvorlage](docs/betreuung/protokoll_vorlage.md)
 
@@ -57,10 +73,12 @@ ros2 topic list      # sollte Topics des TurtleBot zeigen (z.B. /battery_state)
 turtlebot4-praktikum/
 ├── README.md                 ← diese Datei
 ├── docs/                     ← alle Praktikumsanleitungen
+│   ├── simulation/           ← Simulationspraktikum (Gazebo, ohne Roboter)
 │   └── betreuung/            ← Abnahme & Inventar (nicht für Studierende)
 ├── maps/                     ← hier speichert ihr eure SLAM-Karten
 ├── tools/
-│   └── tb4_check.sh          ← Schnelltest eines Roboters/Laborplatzes
+│   ├── tb4_check.sh          ← Schnelltest eines Roboters/Laborplatzes
+│   └── sim_env.sh            ← Umgebung für die Simulation (source!)
 └── src/
     ├── praktikum_py/         ← euer Python-Paket (hier schreibt ihr Code, TODOs!)
     └── praktikum_bringup/    ← Launch-Files, die mehrere Nodes starten
